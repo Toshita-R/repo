@@ -1,0 +1,658 @@
+{
+  "datasets": [
+    {
+      "name": "5502dea6",
+      "displayName": "gmv_total",
+      "queryLines": [
+        "SELECT ROUND(SUM(gross_revenue), 2) AS total_gmv\r\n",
+        "FROM ecom_dev.gold.fct_order_items;"
+      ]
+    },
+    {
+      "name": "68745aaa",
+      "displayName": "ontime_rate",
+      "queryLines": [
+        "SELECT ROUND(100.0 * AVG(CASE WHEN is_late_delivery THEN 0.0 ELSE 1.0 END), 1) AS ontime_pct\r\n",
+        "FROM ecom_dev.gold.fct_order_items\r\n",
+        "WHERE is_late_delivery IS NOT NULL;"
+      ]
+    },
+    {
+      "name": "4eebf9fd",
+      "displayName": "monthly_revenue",
+      "queryLines": [
+        "SELECT year_month, orders, gmv, avg_order_value, repeat_customer_pct\r\n",
+        "FROM ecom_dev.gold.mart_monthly_revenue\r\n",
+        "WHERE orders > 100\r\n",
+        "ORDER BY year_month;"
+      ]
+    },
+    {
+      "name": "f59fac00",
+      "displayName": "delay_vs_score",
+      "queryLines": [
+        "SELECT\r\n",
+        "  CASE\r\n",
+        "    WHEN f.delivery_delay_days <= -7 THEN '7+ days early'\r\n",
+        "    WHEN f.delivery_delay_days <  0  THEN 'Early'\r\n",
+        "    WHEN f.delivery_delay_days =  0  THEN 'On the day'\r\n",
+        "    WHEN f.delivery_delay_days <= 7  THEN '1-7 days late'\r\n",
+        "    WHEN f.delivery_delay_days <= 14 THEN '8-14 days late'\r\n",
+        "    ELSE '15+ days late'\r\n",
+        "  END AS delay_bucket,\r\n",
+        "  MIN(f.delivery_delay_days)   AS sort_key,\r\n",
+        "  COUNT(DISTINCT f.order_id)   AS orders,\r\n",
+        "  ROUND(AVG(r.review_score),2) AS avg_score\r\n",
+        "FROM ecom_dev.gold.fct_order_items f\r\n",
+        "JOIN ecom_dev.gold.fct_reviews r ON f.order_id = r.order_id\r\n",
+        "WHERE f.delivery_delay_days IS NOT NULL\r\n",
+        "GROUP BY 1\r\n",
+        "ORDER BY sort_key;"
+      ]
+    },
+    {
+      "name": "925d2c7a",
+      "displayName": "revenue_by_state",
+      "queryLines": [
+        "SELECT c.customer_state,\r\n",
+        "       COUNT(DISTINCT f.order_id)     AS orders,\r\n",
+        "       ROUND(SUM(f.gross_revenue), 2) AS gmv,\r\n",
+        "       ROUND(AVG(f.delivery_days), 1) AS avg_delivery_days\r\n",
+        "FROM ecom_dev.gold.fct_order_items f\r\n",
+        "JOIN ecom_dev.gold.dim_customer c ON f.customer_sk = c.customer_sk\r\n",
+        "GROUP BY c.customer_state\r\n",
+        "ORDER BY gmv DESC;"
+      ]
+    },
+    {
+      "name": "935365be",
+      "displayName": "seller_scorecard",
+      "queryLines": [
+        "SELECT seller_id, seller_city, seller_state, line_items, gmv,\r\n",
+        "       avg_delivery_days, late_pct, avg_review_score\r\n",
+        "FROM ecom_dev.gold.mart_seller_scorecard\r\n",
+        "WHERE line_items >= 100\r\n",
+        "ORDER BY late_pct DESC\r\n",
+        "LIMIT 20;"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "cbba515a",
+      "displayName": "E-Commerce Operations Overview",
+      "layout": [
+        {
+          "widget": {
+            "name": "total-gmv",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "5502dea6",
+                  "fields": [
+                    {
+                      "name": "sum(total_gmv)",
+                      "expression": "SUM(`total_gmv`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "Total GMV"
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(total_gmv)",
+                  "format": {
+                    "type": "number-currency",
+                    "currencyCode": "BRL",
+                    "abbreviation": "compact",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 2
+                    }
+                  },
+                  "style": {
+                    "fontFamily": "Georgia"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 2,
+            "width": 5,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "on-time-delivery",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "68745aaa",
+                  "fields": [
+                    {
+                      "name": "sum(ontime_pct)",
+                      "expression": "SUM(`ontime_pct`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "On-Time Delivery"
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(ontime_pct)",
+                  "style": {
+                    "fontFamily": "Georgia",
+                    "rules": [
+                      {
+                        "condition": {
+                          "operator": ">="
+                        },
+                        "color": "#00A972"
+                      }
+                    ]
+                  },
+                  "format": {
+                    "type": "number-currency",
+                    "currencyCode": "BRL",
+                    "abbreviation": "compact",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 2
+                    }
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 5,
+            "y": 2,
+            "width": 6,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "monthly-gmv-trend",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "4eebf9fd",
+                  "fields": [
+                    {
+                      "name": "year_month",
+                      "expression": "`year_month`"
+                    },
+                    {
+                      "name": "sum(gmv)",
+                      "expression": "SUM(`gmv`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "showTitle": true,
+                "title": "Monthly GMV Trend"
+              },
+              "mark": {
+                "colors": [
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 3
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 2
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 3
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 4
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 5
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 6
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 7
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 8
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 9
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 10
+                  }
+                ]
+              },
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "year_month",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(gmv)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 3,
+            "width": 12,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "review-score-delivery-delay",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "f59fac00",
+                  "fields": [
+                    {
+                      "name": "delay_bucket",
+                      "expression": "`delay_bucket`"
+                    },
+                    {
+                      "name": "sum(avg_score)",
+                      "expression": "SUM(`avg_score`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "showTitle": true,
+                "title": "Review Score by Delivery Delay"
+              },
+              "mark": {
+                "colors": [
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 2
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 2
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 3
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 4
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 5
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 6
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 7
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 8
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 9
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 10
+                  }
+                ]
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "delay_bucket",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "y-reversed"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(avg_score)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 6,
+            "width": 6,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "revenue-by-state",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "925d2c7a",
+                  "fields": [
+                    {
+                      "name": "customer_state",
+                      "expression": "`customer_state`"
+                    },
+                    {
+                      "name": "sum(gmv)",
+                      "expression": "SUM(`gmv`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "showTitle": true,
+                "title": "Revenue by State"
+              },
+              "mark": {
+                "colors": [
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 3
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 2
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 3
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 4
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 5
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 6
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 7
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 8
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 9
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 10
+                  }
+                ]
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "customer_state",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(gmv)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 6,
+            "width": 6,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "worst-performing-sellers",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "935365be",
+                  "fields": [
+                    {
+                      "name": "avg_delivery_days",
+                      "expression": "`avg_delivery_days`"
+                    },
+                    {
+                      "name": "avg_review_score",
+                      "expression": "`avg_review_score`"
+                    },
+                    {
+                      "name": "gmv",
+                      "expression": "`gmv`"
+                    },
+                    {
+                      "name": "late_pct",
+                      "expression": "`late_pct`"
+                    },
+                    {
+                      "name": "line_items",
+                      "expression": "`line_items`"
+                    },
+                    {
+                      "name": "seller_city",
+                      "expression": "`seller_city`"
+                    },
+                    {
+                      "name": "seller_id",
+                      "expression": "`seller_id`"
+                    },
+                    {
+                      "name": "seller_state",
+                      "expression": "`seller_state`"
+                    }
+                  ],
+                  "disaggregated": true,
+                  "orders": [
+                    {
+                      "direction": "ASC",
+                      "expression": "`avg_delivery_days`"
+                    },
+                    {
+                      "direction": "ASC",
+                      "expression": "`avg_review_score`"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "Worst-Performing Sellers",
+                "showDescription": false
+              },
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "avg_delivery_days"
+                  },
+                  {
+                    "fieldName": "avg_review_score"
+                  },
+                  {
+                    "fieldName": "gmv"
+                  },
+                  {
+                    "fieldName": "late_pct"
+                  },
+                  {
+                    "fieldName": "line_items"
+                  },
+                  {
+                    "fieldName": "seller_city"
+                  },
+                  {
+                    "fieldName": "seller_id"
+                  },
+                  {
+                    "fieldName": "seller_state"
+                  }
+                ],
+                "rowOrder": [
+                  {
+                    "by": "column",
+                    "field": {
+                      "index": 0
+                    }
+                  },
+                  {
+                    "by": "column",
+                    "field": {
+                      "index": 1
+                    }
+                  }
+                ]
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 11,
+            "width": 12,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "08c79b3f",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## Olist Marketplace Operations\n",
+                "\n",
+                "112,650 order lines · R$ 15.8M GMV · Sep 2016 – Oct 2018\n",
+                "\n",
+                "**Late deliveries average 2.57 stars vs 4.29 on time — a 1.72-star penalty on 6.4% of orders.**"
+              ]
+            },
+            "specExtensions": {
+              "widgetBackgroundColor": {
+                "light": "#6BB819"
+              },
+              "widgetBorderColor": {
+                "light": "#91A048"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 2
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}
