@@ -246,7 +246,8 @@ flowchart TD
     style F fill:#F1EFE8,stroke:#5F5E5A
 ```
 
-![Job DAG](images/job_dag.png)
+![Uploading image.png…]()
+
 
 **Design points:**
 
