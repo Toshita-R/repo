@@ -4,7 +4,7 @@
 
 Processing 1.55M source records across 9 systems into a dimensional model with enforced data quality, slowly-changing-dimension history, PII governance, and orchestrated CI/CD.
 
-![Dashboard](images/dashboard.png)
+
 
 ---
 
