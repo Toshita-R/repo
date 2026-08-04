@@ -263,7 +263,8 @@ flowchart TD
 
 The dataset was deliberately split into two batches. Batch 1 loads history through June 2018; batch 2 adds the following quarter plus **40 relocated sellers** and **60 recategorised products**.
 
-![Incremental load](images/incremental_load.png)
+<img width="1042" height="580" alt="image" src="https://github.com/user-attachments/assets/d8181f7b-fe84-43c4-a28c-06c9953b6592" />
+
 
 On the batch-2 run, `sv_customer_keys` processed **13,000 new rows** against an existing 86,617 — Auto Loader checkpointing meant no reprocessing of prior files.
 
