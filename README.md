@@ -91,7 +91,8 @@ Chosen because it presents the genuinely hard problems rather than a clean tutor
 
 ## Architecture
 
-![Unity Catalog Lineage](images/unity_catalog_lineage.png)
+<img width="727" height="621" alt="image" src="https://github.com/user-attachments/assets/c0db924c-fa2d-46d1-98f6-d0ea008a5fda" />
+
 
 *Lineage graph generated automatically by Unity Catalog — traced from actual data flow, not hand-drawn.*
 
