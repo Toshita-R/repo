@@ -246,7 +246,8 @@ flowchart TD
     style F fill:#F1EFE8,stroke:#5F5E5A
 ```
 
-![Uploading image.png…]()
+<img width="1315" height="660" alt="image" src="https://github.com/user-attachments/assets/feb103a5-8429-4f54-bc7f-56b3c9012f10" />
+
 
 
 **Design points:**
