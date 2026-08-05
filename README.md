@@ -452,7 +452,9 @@ All serverless, all triggered mode. **Set catalog and schema at creation time** 
 
 **5. Apply governance** — run `setup/02_governance.sql`.
 
-**6. Deploy with Asset Bundles** (optional)
+**6. Create AI/BI dashboard** 
+
+**7. Deploy with Asset Bundles** (optional)
 
 ```bash
 databricks bundle validate -t dev
