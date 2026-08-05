@@ -308,7 +308,7 @@ Results are persisted to `ecom_dev.ops.dq_expectation_report` by the orchestrati
 
 ## Governance
 
-<img width="622" height="572" alt="image" src="https://github.com/user-attachments/assets/c3bdec98-2b8d-495f-a096-adef4be8ff41" />
+
 
 
 ### PII masking
@@ -320,6 +320,10 @@ Three masking functions in `ecom_dev.security`:
 | `mask_customer_id` | `abcd***REDACTED***` — first 4 characters only |
 | `mask_coordinate` | Rounded to 1 decimal place (~11km precision) |
 | `mask_free_text` | `[REDACTED]` — review comments suppressed |
+
+
+
+<img width="622" height="572" alt="image" src="https://github.com/user-attachments/assets/c3bdec98-2b8d-495f-a096-adef4be8ff41" />
 
 <img width="877" height="745" alt="image" src="https://github.com/user-attachments/assets/8634f5bd-82ee-48cd-90b3-fa400d38392b" />
 
