@@ -264,14 +264,17 @@ flowchart TD
 
 The dataset was deliberately split into two batches. Batch 1 loads history through June 2018; batch 2 adds the following quarter plus **40 relocated sellers** and **60 recategorised products**.
 
-<img width="1042" height="580" alt="image" src="https://github.com/user-attachments/assets/d8181f7b-fe84-43c4-a28c-06c9953b6592" />
+<img width="1036" height="667" alt="image" src="https://github.com/user-attachments/assets/6f70ff42-e180-40ff-a649-84f92035179a" />
+
+
+
 
 
 On the batch-2 run, `sv_customer_keys` processed **13,000 new rows** against an existing 86,617 — Auto Loader checkpointing meant no reprocessing of prior files.
 
 ### SCD Type 2 in action
 
-![SCD2 history](images/scd2_seller_history.png)
+<img width="1042" height="580" alt="image" src="https://github.com/user-attachments/assets/d8181f7b-fe84-43c4-a28c-06c9953b6592" />
 
 The 40 relocated sellers each produce two rows: the original with `__END_AT` populated, the new record current with `__END_AT` NULL. Historical orders continue to resolve to the seller's city *at the time of the order*.
 
