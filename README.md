@@ -297,7 +297,8 @@ The 40 relocated sellers each produce two rows: the original with `__END_AT` pop
 | `non_negative_price` | order_items | warn | 0 | Guard |
 | `score_in_range` | reviews | warn | 0 | Guard |
 
-![Data quality](images/data_quality.png)
+<img width="981" height="622" alt="image" src="https://github.com/user-attachments/assets/2a305aab-e49a-4df5-a8b9-b8cac7991914" />
+
 
 **Rejected rows are quarantined, not deleted.** `sv_quarantine_orders` holds 718 records with impossible date sequences, each tagged with a reason. Those orders still flow into `sv_orders` — a carrier scan logged before an approval timestamp is a *timestamp* problem, not an invalid order, and dropping it would distort GMV.
 
@@ -307,7 +308,8 @@ Results are persisted to `ecom_dev.ops.dq_expectation_report` by the orchestrati
 
 ## Governance
 
-![Governance lineage](images/lineage_governance.png)
+<img width="622" height="572" alt="image" src="https://github.com/user-attachments/assets/c3bdec98-2b8d-495f-a096-adef4be8ff41" />
+
 
 ### PII masking
 
@@ -319,21 +321,29 @@ Three masking functions in `ecom_dev.security`:
 | `mask_coordinate` | Rounded to 1 decimal place (~11km precision) |
 | `mask_free_text` | `[REDACTED]` — review comments suppressed |
 
+<img width="877" height="745" alt="image" src="https://github.com/user-attachments/assets/8634f5bd-82ee-48cd-90b3-fa400d38392b" />
+
+
 Applied through secure views over the gold tables:
 
 - **`v_dim_customer_secure`** — masked identifiers and coordinates
 - **`v_fct_reviews_secure`** — free-text content excluded
 - **`v_dim_customer_regional`** — row-level filtering by state
 
+- <img width="737" height="452" alt="image" src="https://github.com/user-attachments/assets/ab2e9145-4e43-4759-ab6b-84050c34ccb9" />
+
+
 ### Classification
 
 Tags applied at table and column level: `data_classification` (PII / confidential / internal), `domain`, `certified`, `grain`. Column-level `pii` and `pii_type` tags mark identifiers and location data.
+<img width="757" height="492" alt="image" src="https://github.com/user-attachments/assets/8d1588e2-4092-454b-b2ba-3e0da76f70f0" />
 
 ### Lineage
 
 Unity Catalog traces every table from the landing volume through to the dashboard automatically. The lineage graphs in this README are generated, not drawn — they reflect actual data flow.
 
----
+<img width="1717" height="892" alt="image" src="https://github.com/user-attachments/assets/d28488db-17ea-4bdf-a033-5d8d75f759ca" />
+
 
 ## Results
 
