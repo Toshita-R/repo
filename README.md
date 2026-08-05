@@ -250,6 +250,8 @@ flowchart TD
 <img width="1315" height="660" alt="image" src="https://github.com/user-attachments/assets/feb103a5-8429-4f54-bc7f-56b3c9012f10" />
 
 
+<img width="1055" height="371" alt="image" src="https://github.com/user-attachments/assets/02921360-9b9b-4d8f-8b73-183e2999e54c" />
+
 
 **Design points:**
 
@@ -404,11 +406,11 @@ TRUE for late, FALSE for on-time, **NULL for undelivered**. Coalescing NULL to F
 
 Three `not_defined` payment types and nine zero-value payments are marked `is_suspect` and retained. A zero-value payment typically means a fully voucher-covered order — a real business event. Dropping them would understate order counts.
 
-Full write-ups in [`docs/adr/`](docs/adr/).
+
 
 ---
 
-## Running This Yourself
+## Running This :::
 
 ### Prerequisites
 
